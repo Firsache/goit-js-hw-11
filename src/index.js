@@ -1,35 +1,57 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
-import { fetchImages } from "./fetchImages";
-
-// webformatURL - посилання на маленьке зображення для списку карток.
-// largeImageURL - посилання на велике зображення.
-// tags - рядок з описом зображення. Підійде для атрибуту alt.
-// likes - кількість лайків.
-// views - кількість переглядів.
-// comments - кількість коментарів.
-// downloads - кількість завантажень.
 
 
-// Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+import { PixabayAPI } from './pixabay-api';
+import { renderGallery } from './createGalleryMarkUp';
+
+const pixabayApi = new PixabayAPI();
+
+const refs = {
+    formEl: document.querySelector('#search-form'),
+    galleryEl: document.querySelector('.gallery'),
+    loadMoreBrn: document.querySelector('.load-more')
+}
+
+refs.formEl.addEventListener('submit', onSubmitSearchImages)
+
+async function onSubmitSearchImages(evt) {
+    evt.preventDefault();
+
+    pixabayApi.query = evt.target.elements.searchQuery.value.trim();
+    pixabayApi.page = 1;
+
+    try {
+        const { data } = await pixabayApi.fetchImages();
+        if (data.totalHits.length === 0) {
+        Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+        evt.target.reset();
+        refs.galleryEl.innerHTML = '';
+
+        return;
+        }
+
+        data.hits()
+        .then(response => {
+        return renderGallery(response)
+        })
+
+        if (data.total_pages > 1) {
+            loadMoreBtnEl.classList.remove('is-hidden');
+        }
+    } catch(err => console.log(err)
+}
+
+refs.loadMoreBrn('click', onLoadMoreClick)
+
+async function onLoadMoreClick() {
+    pixabayApi.page += 1;
+
+}
+
+// 
 // Notify.failure("We're sorry, but you've reached the end of search results.")
 // Notify.success("Horray! We found ${} images.")
 
-// `<div class="photo-card">
-//   <img src="" alt="" loading="lazy" />
-//   <div class="info">
-//     <p class="info-item">
-//       <b>Likes</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Views</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Comments</b>
-//     </p>
-//     <p class="info-item">
-//       <b>Downloads</b>
-//     </p>
-//   </div>
-// </div>`
