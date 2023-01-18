@@ -31,9 +31,6 @@ async function onSubmitSearchImages(evt) {
 
     try {
         const { data } = await pixabayApi.fetchImages();
-        console.log(data);
-        console.log(data.totalHits);
-        console.log(data.hits);
 
         if (data.totalHits === 0) {
             Notify.failure("Sorry, there are no images matching your search query. Please try again.");
@@ -57,10 +54,10 @@ async function onSubmitSearchImages(evt) {
             });
         }
 
-        if (data.totalHits>40) {
-            refs.loadMoreBrn.classList.remove('is-hidden');
+        if (data.totalHits > 40) {
+            refs.loadMoreBrn.hidden = false;
         } else {
-            refs.loadMoreBrn.classList.add('is-hidden');
+            refs.loadMoreBrn.hidden = true;
         }       
         
     } catch(error) {
@@ -75,17 +72,13 @@ async function onLoadMoreClick(evt) {
 
     const { data } = await pixabayApi.fetchImages();
     refs.galleryEl.innerHTML = '';
-     refs.galleryEl.innerHTML = renderGallery(data.hits);
+    refs.galleryEl.innerHTML = renderGallery(data.hits);
     simpLightbox.refresh();
-    
 
-    if ( (data.per_page * data.page) === data.totalHits) {
+    if ((pixabayApi.page*pixabayApi.per_page) >= data.totalHits) {
         
         Notify.failure("We're sorry, but you've reached the end of search results.")
-         evt.target.classList.add('is-hidden');
-    // ============================================================
-    //       evt.target.hidden = true;
-        
+        evt.target.hidden = true;
     }
 }
 

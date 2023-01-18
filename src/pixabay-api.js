@@ -38,13 +38,10 @@ export class PixabayAPI {
     constructor() {        
         this.page = 1;
         this.query = null;
+        this.per_page = 40; 
     }
 
-    async fetchImages(query) {
-        if (query) {
-            this.query = query;
-        }
-
+    async fetchImages() {
         const searchParams = {
             params: {
                 q: this.query,
@@ -52,7 +49,7 @@ export class PixabayAPI {
                 orientation: 'horizontal',
                 safesearch: true,
                 page: this.page,
-                per_page: 40,
+                per_page: this.per_page,
                 key: PixabayAPI.API_KEY
             }
             
