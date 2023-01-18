@@ -47,7 +47,7 @@ export class PixabayAPI {
 
         const searchParams = {
             params: {
-                query: this.query,
+                q: this.query,
                 image_type: 'photo',
                 orientation: 'horizontal',
                 safesearch: true,

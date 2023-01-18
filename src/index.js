@@ -25,15 +25,15 @@ refs.formEl.addEventListener('submit', onSubmitSearchImages)
 
 async function onSubmitSearchImages(evt) {
     evt.preventDefault();
-    // console.log(evt.target.elements.searchQuery.value.trim());
+    
     pixabayApi.query = evt.target.elements.searchQuery.value.trim();
     pixabayApi.page = 1;
 
     try {
         const { data } = await pixabayApi.fetchImages();
         console.log(data);
-        console.log(data.totalHits);// число
-        console.log(data.hits);// массив объектов
+        console.log(data.totalHits);
+        console.log(data.hits);
 
         if (data.totalHits === 0) {
             Notify.failure("Sorry, there are no images matching your search query. Please try again.");
@@ -57,7 +57,7 @@ async function onSubmitSearchImages(evt) {
             });
         }
 
-        if (data.hits.length > 40) {
+        if (data.totalHits>40) {
             refs.loadMoreBrn.classList.remove('is-hidden');
         } else {
             refs.loadMoreBrn.classList.add('is-hidden');
@@ -68,23 +68,25 @@ async function onSubmitSearchImages(evt) {
     }
 }
 
-// refs.loadMoreBrn('click', onLoadMoreClick)
+refs.loadMoreBrn.addEventListener('click', onLoadMoreClick)
 
-// async function onLoadMoreClick(evt) {
-//     pixabayApi.page += 1;
+async function onLoadMoreClick(evt) {
+    pixabayApi.page += 1;
 
-//     const { data } = await pixabayApi.fetchImages();
-//     refs.galleryEl.innerHTML = '';
-//      refs.galleryEl.innerHTML = renderGallery(data.hits);
-//     simpLightbox.refresh();
+    const { data } = await pixabayApi.fetchImages();
+    refs.galleryEl.innerHTML = '';
+     refs.galleryEl.innerHTML = renderGallery(data.hits);
+    simpLightbox.refresh();
+    
 
-//     // if ( page===total_page ) {
-//     //     
-//     //     Notify.failure("We're sorry, but you've reached the end of search results.")
-//     //      evt.target.classList.remove('is-hidden');
-//     // ============================================================
-//     //       evt.target.hidden = true;
-//     //     
-//     // }
-// }
+    if ( (data.per_page * data.page) === data.totalHits) {
+        
+        Notify.failure("We're sorry, but you've reached the end of search results.")
+         evt.target.classList.add('is-hidden');
+    // ============================================================
+    //       evt.target.hidden = true;
+        
+    }
+}
+
 
